@@ -6,11 +6,17 @@
 /*   By: sbocanci <sbocanci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/07 16:26:16 by sbocanci          #+#    #+#             */
-/*   Updated: 2023/03/07 17:06:52 by sbocanci         ###   ########.fr       */
+/*   Updated: 2023/03/10 13:58:10 by sbocanci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/pipex.h"
+
+void	child_process(char **av, char **envp, int *fd);
+void	parent_process(char **av, char **envp, int *fd);
+void	execute(char *av, char **envp);
+char	*find_path(char *cmd, char **envp);
+void	error();
 
 int	main(int ac, char **av, char **envp)
 {
@@ -31,36 +37,36 @@ int	main(int ac, char **av, char **envp)
 	}
 	else
 	{
-		ft_putstr_fd("Err: Bad args\n", 2);
+		ft_putstr_fd("Error: Please check your arguments\n", 2);
 		ft_putstr_fd("Usage: ./pipex <file1> <cmd1> <cmd2> <file2>\n", 1);
 	}
 	return (0);
 }
 
-void	child_process(char **av, char **envp, int fd)
+void	child_process(char **av, char **envp, int *fd)
 {
 	int	filein;
 
 	filein = open(av[1], O_RDONLY, 0777);
 	if (filein == -1)
 		error();
-	dup2(fd[1], SDTOUT_FILENO);
-	dup2(filein, SDTIN_FILENO);
+	dup2(fd[1], STDOUT_FILENO);
+	dup2(filein, STDIN_FILENO);
 	close(fd[0]);
 	execute(av[2], envp);
 }
 
-void	parent_process(char **av, char **envp, int fd)
+void	parent_process(char **av, char **envp, int *fd)
 {
 	int	fileout;
 
-	fileout = open(argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0777);
+	fileout = open(av[4], O_WRONLY | O_CREAT | O_TRUNC, 0777);
 	if (fileout == -1)
 		error();
-	dup2(fd[0], SDTIN_FILENO);
-	dup2(fileout, SDTOUT_FILENO);
+	dup2(fd[0], STDIN_FILENO);
+	dup2(fileout, STDOUT_FILENO);
 	close(fd[1]);
-	execute(argv[3], envp);
+	execute(av[3], envp);
 }
 
 void	execute(char *av, char **envp)
@@ -113,6 +119,6 @@ char	*find_path(char *cmd, char **envp)
 
 void	error()
 {
-	perror("\033[31mError")
+	perror("\033[31mError");
 	exit(EXIT_FAILURE);
 }
