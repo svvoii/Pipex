@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sbocanci <sbocanci@student.42.fr>          +#+  +:+       +#+        */
+/*   By: sv <sv@student.42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/07 16:28:21 by sbocanci          #+#    #+#             */
-/*   Updated: 2023/03/10 15:06:17 by sbocanci         ###   ########.fr       */
+/*   Updated: 2023/03/11 10:36:57 by sv               ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,27 @@ typedef struct s_pipex
 	int		cmd_nmbs;
 	int		pipe_nmbs;
 	int		idx;
-}	t_pipex
+}	t_pipex;
+
+/* ft_pipex.c (main) */
+void	ft_close_pipes(t_pipex *pipex);
+void	ft_create_pipes(t_pipex *pipex);
+/* ft_child.c */
+void	ft_child(t_pipex p, char **av, char **envp);
+char	*ft_get_cmd(char **paths, char *cmd);
+void	ft_sub_dup2(int zero, int first);
+int		ft_msg(char *err);
+void	ft_msg_pipe(char *arg);
+void	ft_error(char *err);
+/* ft_files.c */
+void	ft_get_infile(char **av, t_pipex *pipex);
+void	ft_get_outfile(char *av_out, t_pipex *pipex);
+char	*ft_find_path(char **envp);
+void	ft_here_doc(char *av, t_pipex *pipex);
+int		ft_args_in(char *arg, t_pipex *pipex);
+/* ft_free.c */
+void	ft_free_child(t_pipex *pipex);
+void	ft_free_parent(t_pipex *pipex);
+void	ft_free_pipe(t_pipex *pipex);
 
 #endif

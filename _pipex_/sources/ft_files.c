@@ -1,19 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   files.c                                            :+:      :+:    :+:   */
+/*   ft_files.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sbocanci <sbocanci@student.42.fr>          +#+  +:+       +#+        */
+/*   By: sv <sv@student.42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/07 16:26:16 by sbocanci          #+#    #+#             */
-/*   Updated: 2023/03/10 15:44:39 by sbocanci         ###   ########.fr       */
+/*   Updated: 2023/03/11 10:24:40 by sv               ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/pipex.h"
 
 void	ft_get_infile(char **av, t_pipex *pipex);
-void	ft_get_outfile(char **av, t_pipex *pipex);
+void	ft_get_outfile(char *av_out, t_pipex *pipex);
 char	*ft_find_path(char **envp);
 
 void	ft_here_doc(char *av, t_pipex *pipex);
@@ -21,8 +21,8 @@ int		ft_args_in(char *arg, t_pipex *pipex);
 
 void	ft_get_infile(char **av, t_pipex *pipex)
 {
-	if (!ft_strncmp("here_doc", av[i], 9))
-		here_doc(av[2], pipex);
+	if (!ft_strncmp("here_doc", av[1], 9))
+		ft_here_doc(av[2], pipex);
 	else
 	{
 		pipex->infile = open(av[1], O_RDONLY);
@@ -31,12 +31,12 @@ void	ft_get_infile(char **av, t_pipex *pipex)
 	}
 }
 
-void	ft_get_outfile(char **av, t_pipex *pipex)
+void	ft_get_outfile(char *av_out, t_pipex *pipex)
 {
 	if (pipex->here_doc)
-		pipex->outfile = open(av, O_WRONLY | O_CREAT | O_APPEND, 0000644);
+		pipex->outfile = open(av_out, O_WRONLY | O_CREAT | O_APPEND, 0000644);
 	else
-		pipex->outfile = open(av, O_CREAT | O_RDWR | O_TRUNC, 0000644);
+		pipex->outfile = open(av_out, O_CREAT | O_RDWR | O_TRUNC, 0000644);
 	if (pipex->outfile == -1)
 		ft_error(ERR_OUTFILE);
 }
@@ -45,7 +45,7 @@ char	*ft_find_path(char **envp)
 {
 	while (ft_strncmp("PATH", *envp, 4))
 		envp++;
-	return (*envp + 5)
+	return (*envp + 5);
 }
 
 void	ft_here_doc(char *av, t_pipex *pipex)

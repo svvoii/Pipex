@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   ft_pipex.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sbocanci <sbocanci@student.42.fr>          +#+  +:+       +#+        */
+/*   By: sv <sv@student.42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/07 16:26:16 by sbocanci          #+#    #+#             */
-/*   Updated: 2023/03/10 16:38:44 by sbocanci         ###   ########.fr       */
+/*   Updated: 2023/03/11 10:21:05 by sv               ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/pipex.h"
 
-void	close_pipes(t_pipex *pipex);
-void	create_pipes(t_pipex *pipex);
+void	ft_close_pipes(t_pipex *pipex);
+void	ft_create_pipes(t_pipex *pipex);
 
 int	main(int ac, char **av, char **envp)
 {
@@ -28,8 +28,8 @@ int	main(int ac, char **av, char **envp)
 	pipex.pipe = (int *)malloc(sizeof(int) * pipex.pipe_nmbs);
 	if (!pipex.pipe)
 		ft_error(ERR_PIPE);
-	pipex.env_path = find_path(envp);
-	pipex.cmd_paths = ft_split(pipex.env_path. ':');
+	pipex.env_path = ft_find_path(envp);
+	pipex.cmd_paths = ft_split(pipex.env_path, ':');
 	if (!pipex.cmd_paths)
 		ft_free_pipe(&pipex);
 	ft_create_pipes(&pipex);
@@ -58,5 +58,5 @@ void	ft_create_pipes(t_pipex *pipex)
 	i = -1;
 	while (++i < pipex->cmd_nmbs - 1)
 		if (pipe(pipex->pipe + 2 * i) == -1)
-			parent_free(pipex);
+			ft_free_parent(pipex);
 }

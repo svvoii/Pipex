@@ -3,14 +3,18 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: sbocanci <sbocanci@student.42.fr>          +#+  +:+       +#+         #
+#    By: sv <sv@student.42.fr>                      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/03/10 13:35:35 by sbocanci          #+#    #+#              #
-#    Updated: 2023/03/10 13:53:17 by sbocanci         ###   ########.fr        #
+#    Updated: 2023/03/11 10:44:39 by sv               ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-FILES	= sources/pipex.c \
+FILES	= sources/ft_pipex.c sources/ft_child.c sources/ft_files.c sources/ft_free.c \
+		libft/ft_putstr_fd.c libft/ft_split.c libft/ft_strjoin.c libft/ft_strlen.c \
+		libft/ft_strnstr.c libft/ft_strdup.c libft/ft_strchr.c libft/ft_substr.c\
+		libft/get_next_line.c
+#FILES	= sources/pipex.c \
 		libft/ft_putstr_fd.c libft/ft_split.c libft/ft_strjoin.c libft/ft_strlen.c libft/ft_strnstr.c
 
 OBJS	= ${FILES:.c=.o}

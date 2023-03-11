@@ -3,14 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   ft_free.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sbocanci <sbocanci@student.42.fr>          +#+  +:+       +#+        */
+/*   By: sv <sv@student.42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/07 16:26:16 by sbocanci          #+#    #+#             */
-/*   Updated: 2023/03/10 15:58:33 by sbocanci         ###   ########.fr       */
+/*   Updated: 2023/03/11 10:09:08 by sv               ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/pipex.h"
+
+void	ft_free_child(t_pipex *pipex);
+void	ft_free_parent(t_pipex *pipex);
+void	ft_free_pipe(t_pipex *pipex);
 
 void	ft_free_pipe(t_pipex *pipex)
 {

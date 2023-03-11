@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_child.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sbocanci <sbocanci@student.42.fr>          +#+  +:+       +#+        */
+/*   By: sv <sv@student.42.fr>                      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/07 16:26:16 by sbocanci          #+#    #+#             */
-/*   Updated: 2023/03/10 16:24:00 by sbocanci         ###   ########.fr       */
+/*   Updated: 2023/03/11 10:21:56 by sv               ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,13 +30,13 @@ void	ft_child(t_pipex p, char **av, char **envp)
 			ft_sub_dup2(p.pipe[2 * p.idx - 2], p.outfile);
 		else
 			ft_sub_dup2(p.pipe[2 * p.idx - 2], p.pipe[2 * p.idx + 1]);
-		close_pipes(&p);
+		ft_close_pipes(&p);
 		p.cmd_args = ft_split(av[2 + p.here_doc + p.idx], ' ');
 		p.cmd = ft_get_cmd(p.cmd_paths, p.cmd_args[0]);
 		if (!p.cmd)
 		{
 			ft_msg_pipe(p.cmd_args[0]);
-			child_free(&p);
+			ft_free_child(&p);
 			exit(1);
 		}
 		execve(p.cmd, p.cmd_args, envp);
