@@ -6,7 +6,7 @@
 /*   By: sbocanci <sbocanci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/07 16:28:21 by sbocanci          #+#    #+#             */
-/*   Updated: 2023/03/13 17:02:14 by sbocanci         ###   ########.fr       */
+/*   Updated: 2023/03/13 17:35:57 by sbocanci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,6 @@
 # include <fcntl.h>
 
 # include "libft.h"
-
-# define ERR_INPUT "Error: Please check your arguments\nUsage: ./pipex <file1> <cmd1> <cmd2> ... <file2>\n"
 
 typedef struct s_pipex
 {

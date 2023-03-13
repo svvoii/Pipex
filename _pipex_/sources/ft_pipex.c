@@ -6,7 +6,7 @@
 /*   By: sbocanci <sbocanci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/07 16:26:16 by sbocanci          #+#    #+#             */
-/*   Updated: 2023/03/13 15:51:01 by sbocanci         ###   ########.fr       */
+/*   Updated: 2023/03/13 17:36:06 by sbocanci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,8 @@ int	main(int ac, char **av, char **envp)
 
 	if (ac < ft_args_in(av[1], &pipex))
 	{
-		write(2, ERR_INPUT, ft_strlen(ERR_INPUT));
+		write(2, "Error: Invalid arguments\n", 25);
+		write(2, "Use: ./pipex <file1> <cmd1> <cmd2> .. <file2>\n", 46);
 		return (1);
 	}
 	ft_get_files(&pipex, av, av[ac - 1]);

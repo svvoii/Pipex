@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_child.c                                         :+:      :+:    :+:   */
+/*   ft_execute.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sbocanci <sbocanci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/07 16:26:16 by sbocanci          #+#    #+#             */
-/*   Updated: 2023/03/13 15:59:52 by sbocanci         ###   ########.fr       */
+/*   Updated: 2023/03/13 17:34:25 by sbocanci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ void	ft_here_doc(char *av, t_pipex *pipex)
 	char	*buf;
 	int		file;
 
-	file = open(".heredoc_tmp", O_CREAT | O_WRONLY | O_TRUNC, 0000644);
+	file = open(".heredoc_tmp", O_CREAT | O_WRONLY | O_TRUNC, 00007);
 	if (file == -1)
 		ft_error("here_doc");
 	while (1)
@@ -86,7 +86,7 @@ void	ft_child(t_pipex p, char **av, char **envp)
 		p.cmd = ft_get_cmd(p.cmd_paths, p.cmd_args[0]);
 		if (!p.cmd)
 		{
-			write(2, "Error: ", 7);
+			write(2, "Error Command not found: ", 25);
 			write(2, p.cmd_args[0], ft_strlen(p.cmd_args[0]));
 			write(2, "\n", 1);
 			ft_free_child(&p);
