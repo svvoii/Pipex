@@ -6,7 +6,7 @@
 /*   By: sbocanci <sbocanci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/07 16:26:16 by sbocanci          #+#    #+#             */
-/*   Updated: 2023/03/13 17:36:06 by sbocanci         ###   ########.fr       */
+/*   Updated: 2023/03/14 11:38:53 by sbocanci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@ void	ft_close_pipes(t_pipex *pipex);
 int	main(int ac, char **av, char **envp)
 {
 	t_pipex	pipex;
+	int		i;
 
 	if (ac < ft_args_in(av[1], &pipex))
 	{
@@ -31,8 +32,8 @@ int	main(int ac, char **av, char **envp)
 	ft_malloc_pipes(&pipex, ac);
 	ft_get_envp(&pipex, envp);
 	ft_create_pipes(&pipex);
-	pipex.i = -1;
-	while (++(pipex.i) < pipex.cmd_nmbs)
+	i = -1;
+	while (++i < pipex.cmd_nmbs)
 		ft_child(pipex, av, envp);
 	ft_close_pipes(&pipex);
 	waitpid(-1, NULL, 0);

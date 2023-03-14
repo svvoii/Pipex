@@ -6,7 +6,7 @@
 /*   By: sbocanci <sbocanci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/07 16:26:16 by sbocanci          #+#    #+#             */
-/*   Updated: 2023/03/13 17:34:25 by sbocanci         ###   ########.fr       */
+/*   Updated: 2023/03/14 11:34:00 by sbocanci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,7 +86,7 @@ void	ft_child(t_pipex p, char **av, char **envp)
 		p.cmd = ft_get_cmd(p.cmd_paths, p.cmd_args[0]);
 		if (!p.cmd)
 		{
-			write(2, "Error Command not found: ", 25);
+			write(2, "Error. Command not found: ", 26);
 			write(2, p.cmd_args[0], ft_strlen(p.cmd_args[0]));
 			write(2, "\n", 1);
 			ft_free_child(&p);
