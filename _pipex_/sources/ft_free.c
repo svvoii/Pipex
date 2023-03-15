@@ -6,7 +6,7 @@
 /*   By: sbocanci <sbocanci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/07 16:26:16 by sbocanci          #+#    #+#             */
-/*   Updated: 2023/03/13 16:03:50 by sbocanci         ###   ########.fr       */
+/*   Updated: 2023/03/15 17:20:41 by sbocanci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ void	ft_free_pipe(t_pipex *pipex)
 	close(pipex->outfile);
 	if (pipex->here_doc)
 		unlink(".heredoc_tmp");
-	free(pipex->pipe);
+	//free(pipex->pipe);
 	ft_error("Environment");
 	exit(1);
 }
@@ -57,7 +57,7 @@ void	ft_free_parent(t_pipex *pipex)
 	while (pipex->cmd_paths[++i])
 		free(pipex->cmd_paths[i]);
 	free(pipex->cmd_paths);
-	free(pipex->pipe);
+	//free(pipex->pipe);
 }
 
 void	ft_free_child(t_pipex *pipex)

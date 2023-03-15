@@ -6,7 +6,7 @@
 /*   By: sbocanci <sbocanci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/07 16:26:16 by sbocanci          #+#    #+#             */
-/*   Updated: 2023/03/14 11:34:00 by sbocanci         ###   ########.fr       */
+/*   Updated: 2023/03/15 18:16:18 by sbocanci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,9 @@
 
 void	ft_get_files(t_pipex *pipex, char **av, char *out);
 void	ft_here_doc(char *av, t_pipex *pipex);
-void	ft_child(t_pipex p, char **av, char **envp);
-void	ft_sub_dup2(int zero, int first);
+void	ft_child(t_pipex p, char **av, char **envp, int pipes[1024][2], int i);
+void	ft_sub_dup2(t_pipex p, int pipes[1024][2], int i);
+//void	ft_sub_dup2(int zero, int first);
 char	*ft_get_cmd(char **paths, char *cmd);
 
 /* Dealing with in/out files.
@@ -70,20 +71,22 @@ void	ft_here_doc(char *av, t_pipex *pipex)
 }
 
 /* Arranging i/o for each pipe and ececuting cmd */
-void	ft_child(t_pipex p, char **av, char **envp)
+void	ft_child(t_pipex p, char **av, char **envp, int pipes[1024][2], int i)
 {
+	int	j;
+	
 	p.pid = fork();
 	if (p.pid == 0)
 	{
-		if (p.i == 0)
-			ft_sub_dup2(p.infile, p.pipe[1]);
-		else if (p.i == p.cmd_nmbs - 1)
-			ft_sub_dup2(p.pipe[2 * p.i - 2], p.outfile);
-		else
-			ft_sub_dup2(p.pipe[2 * p.i - 2], p.pipe[2 * p.i + 1]);
-		ft_close_pipes(&p);
-		p.cmd_args = ft_split(av[2 + p.here_doc + p.i], ' ');
+		printf("i:'%d'\tp.cmd:'%s'\n", i, p.cmd);
+		ft_sub_dup2(p, pipes, i);
+		//ft_close_pipes(&p);
+		p.cmd_args = ft_split(av[2 + p.here_doc + i], ' ');
+		j = -1;
+		while (p.cmd_args[++j])
+			printf("cmd_args: '%d': '%s'\n", j, p.cmd_args[j]);
 		p.cmd = ft_get_cmd(p.cmd_paths, p.cmd_args[0]);
+		printf("cmd: '%s'\n", p.cmd);
 		if (!p.cmd)
 		{
 			write(2, "Error. Command not found: ", 26);
@@ -96,12 +99,35 @@ void	ft_child(t_pipex p, char **av, char **envp)
 	}
 }
 
+void	ft_sub_dup2(t_pipex p, int pipes[1024][2], int i)
+{
+	printf("\ti:'%d'\n", i);
+	if (i == 0)
+	{
+		printf("\tif\tdup from:'%d' to '%d' && from:'%d' to '%d'\n", p.infile, STDIN_FILENO, pipes[i][1], STDOUT_FILENO);
+		dup2(p.infile, STDIN_FILENO);
+		dup2(pipes[i][1], STDOUT_FILENO);
+	}
+	else if (i == p.cmd_nmbs - 1)
+	{
+		printf("\telse if\tdup from:'%d' to '%d' && from:'%d' to '%d'\n", pipes[i][0], STDIN_FILENO, p.outfile, STDOUT_FILENO);
+		dup2(pipes[i][0], STDIN_FILENO);
+		dup2(p.outfile, STDOUT_FILENO);
+	}
+	else
+	{
+		printf("\telse\tdup from:'%d' to '%d' && from:'%d' to '%d'\n", pipes[i][0], STDIN_FILENO, pipes[i][1], STDOUT_FILENO);
+		dup2(pipes[i][0], STDIN_FILENO);
+		dup2(pipes[i][1], STDOUT_FILENO);
+	}
+}
+/*
 void	ft_sub_dup2(int read_end, int write_end)
 {
-	dup2(read_end, 0);
-	dup2(write_end, 1);
+	dup2(read_end, STDIN_FILENO);
+	dup2(write_end, STDOUT_FILENO);
 }
-
+*/
 char	*ft_get_cmd(char **paths, char *cmd)
 {
 	char	*command;

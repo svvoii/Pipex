@@ -6,7 +6,7 @@
 /*   By: sbocanci <sbocanci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/07 16:26:16 by sbocanci          #+#    #+#             */
-/*   Updated: 2023/03/14 15:49:04 by sbocanci         ###   ########.fr       */
+/*   Updated: 2023/03/15 12:55:28 by sbocanci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,82 +14,88 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <fcntl.h>
 #include <string.h>
 
-#define MAX_ARGS 100
-#define MAX_COMMAND_LENGTH 1000
+#define MAX_CMD_LEN 256
+#define MAX_CMDS 10
 
-int main(int argc, char *argv[]) {
-    char *infile, *outfile, *command;
-    int fd[2], prev_read_fd = STDIN_FILENO, i;
-    pid_t pid;
-    char *args[MAX_ARGS];
-	int prev_pipe[2], curr_pipe[2];
+int parse_cmd(char *cmd, char **args) {
+    int nargs = 0;
+    char *token = strtok(cmd, " ");
+    while (token != NULL) {
+        args[nargs++] = token;
+        token = strtok(NULL, " ");
+    }
+    args[nargs] = NULL; // add NULL terminator
+    return nargs;
+}
 
-    if (argc < 4) {
-        fprintf(stderr, "Usage: %s <infile> \"<command_1>\" \"<command_2>\" ... \"<command_x>\" <outfile>\n", argv[0]);
+void parse_and_exec_cmd(char *cmd, int in_fd, int out_fd) {
+    pid_t pid = fork();
+    if (pid == 0) { // child process
+        if (in_fd != STDIN_FILENO) {
+            dup2(in_fd, STDIN_FILENO);
+            close(in_fd);
+        }
+        if (out_fd != STDOUT_FILENO) {
+            dup2(out_fd, STDOUT_FILENO);
+            close(out_fd);
+        }
+
+        // execute the command
+        char *args[MAX_CMDS];
+        int nargs = parse_cmd(cmd, args);
+        execvp(args[0], args);
+
+        // execvp returns only on error
+        perror(args[0]);
         exit(EXIT_FAILURE);
     }
+}
 
-    infile = argv[1];
-    outfile = argv[argc-1];
-	
-	for (int i = 0; i < num_cmds; i++) {
-		// Create new pipe
-		if (pipe(curr_pipe) < 0) {
-			perror("pipe error");
-			exit(EXIT_FAILURE);
-		}
-		// Fork new child process
-		if ((pid = fork()) < 0) {
-			perror("fork error");
-			exit(EXIT_FAILURE);
-		}
-		if (pid == 0) { // child process
-			// Set up input redirection
-			if (i > 0) {
-				if (dup2(prev_pipe[0], STDIN_FILENO) < 0) {
-					perror("dup2 error");
-					exit(EXIT_FAILURE);
-				}
-				close(prev_pipe[0]);
-			}
-			// Set up output redirection
-			if (i < num_cmds - 1) {
-				if (dup2(curr_pipe[1], STDOUT_FILENO) < 0) {
-					perror("dup2 error");
-					exit(EXIT_FAILURE);
-				}
-				close(curr_pipe[1]);
-			} else {
-				// Last command in pipeline, redirect output to file
-				int fd = open(outfile, O_WRONLY | O_CREAT | O_TRUNC, 0666);
-				if (dup2(fd, STDOUT_FILENO) < 0) {
-					perror("dup2 error");
-					exit(EXIT_FAILURE);
-				}
-				close(fd);
-			}
-			// Close unused file descriptors
-			close(curr_pipe[0]);
-			close(prev_pipe[1]);
-			// Parse and execute command
-			parse_and_exec_cmd(cmds[i]);
-			exit(EXIT_SUCCESS);
-		} else { // parent process
-			// Close write end of previous pipe
-			if (i > 0) {
-				close(prev_pipe[1]);
-			}
-			// Keep read end of current pipe for next command
-			prev_pipe[0] = curr_pipe[0];
-			prev_pipe[1] = curr_pipe[1];
-		}
-	}
-    // wait for child processes to finish
-    for (i = 0; i < argc-3; i++) {
+int main(int argc, char **argv) {
+    if (argc < 4) {
+        printf("Usage: %s <infile> \"<command_1>\" \"<command_2>\" ... \"<command_x>\" <outfile>\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+    char *infile = argv[1];
+    char *outfile = argv[argc - 1];
+    int num_cmds = argc - 3;
+    char *cmds[MAX_CMDS];
+    for (int i = 0; i < num_cmds; i++) {
+        cmds[i] = argv[i + 2];
+    }
+
+    int prev_pipe[2];
+    int in_fd = open(infile, O_RDONLY);
+    int out_fd = open(outfile, O_WRONLY | O_CREAT | O_TRUNC, 0666);
+
+    for (int i = 0; i < num_cmds; i++) {
+        int curr_pipe[2];
+        if (pipe(curr_pipe) < 0) {
+            perror("pipe error");
+            exit(EXIT_FAILURE);
+        }
+        parse_and_exec_cmd(cmds[i], in_fd, curr_pipe[1]);
+        close(curr_pipe[1]);
+        if (i > 0) {
+            close(prev_pipe[0]);
+        }
+        prev_pipe[0] = curr_pipe[0];
+        prev_pipe[1] = curr_pipe[1];
+        in_fd = curr_pipe[0];
+    }
+
+    parse_and_exec_cmd("", in_fd, out_fd);
+
+    // Wait for all child processes to finish
+    for (int i = 0; i < num_cmds + 1; i++) {
         wait(NULL);
     }
 
-    return 0;
+    close(in_fd);
+    close(out_fd);
+
+    return EXIT_SUCCESS;
 }
