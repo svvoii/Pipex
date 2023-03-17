@@ -6,7 +6,7 @@
 /*   By: sbocanci <sbocanci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/07 16:26:16 by sbocanci          #+#    #+#             */
-/*   Updated: 2023/03/15 18:07:57 by sbocanci         ###   ########.fr       */
+/*   Updated: 2023/03/17 15:57:07 by sbocanci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ void	ft_close_pipes(t_pipex *pipex);
 int	main(int ac, char **av, char **envp)
 {
 	t_pipex	pipex;
-	int		pipes[1024][2];
+	int		pipes[32][2];
 	int		i;
 	int		p;
 
@@ -39,14 +39,15 @@ int	main(int ac, char **av, char **envp)
 		p = pipe(pipes[i]);
 		if (p == -1)
 			ft_free_parent(&pipex);
-		printf("main\t'%d': p '%d'\n", i, p);
+		printf("pipes[%d][0]:'%d'\n", i, pipes[i][0]);
+		printf("pipes[%d][1]:'%d'\n", i, pipes[i][1]);
 	}
 	ft_get_envp(&pipex, envp);
 	//ft_create_pipes(pipes);
 	i = -1;
 	while (++i < pipex.cmd_nmbs)
 	{
-		printf("'%d'\n", i);
+		//printf("'%d'\n", i);
 		ft_child(pipex, av, envp, pipes, i);
 	}
 	//ft_close_pipes(&pipex);

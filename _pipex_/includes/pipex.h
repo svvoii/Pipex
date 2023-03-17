@@ -6,7 +6,7 @@
 /*   By: sbocanci <sbocanci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/07 16:28:21 by sbocanci          #+#    #+#             */
-/*   Updated: 2023/03/15 18:15:52 by sbocanci         ###   ########.fr       */
+/*   Updated: 2023/03/17 15:34:27 by sbocanci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,8 +48,8 @@ void	ft_close_pipes(t_pipex *pipex);
 void	ft_get_files(t_pipex *pipex, char **av, char *out);
 void	ft_here_doc(char *av, t_pipex *pipex);
 //void	ft_child(t_pipex p, char **av, char **envp);
-void	ft_child(t_pipex p, char **av, char **envp, int pipes[1024][2], int i);
-void	ft_sub_dup2(t_pipex p, int pipes[1024][2], int i);
+void	ft_child(t_pipex p, char **av, char **envp, int pipes[32][2], int i);
+void	ft_sub_dup2(t_pipex p, int pipes[32][2], int i);
 //void	ft_child(t_pipex p, char **av, char **envp, int i);
 //void	ft_sub_dup2(t_pipex p);
 //void	ft_sub_dup2(int zero, int first);
