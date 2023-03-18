@@ -6,6 +6,25 @@ static ssize_t	read_file(int fd, size_t *i, char *buff);
 #define BUFFER_SIZE 1024
 
 char	*get_next_line(int fd)
+char	*ft_strdup(const char *s)
+{
+	size_t		i;
+	size_t		s_len;
+	char		*dup;
+
+	s_len = ft_strlen((char *)s);
+	dup = malloc(s_len + 1);
+	if (!dup)
+		return (NULL);
+	i = 0;
+	while (i < s_len)
+	{
+		dup[i] = s[i];
+		i++;
+	}
+	dup[i] = '\0';
+	return (dup);
+}
 {
 	static char		buff[BUFFER_SIZE + 1] = "";
 	static size_t	i = 0;
