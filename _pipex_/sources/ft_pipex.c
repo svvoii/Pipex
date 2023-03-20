@@ -6,94 +6,101 @@
 /*   By: sbocanci <sbocanci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/07 16:26:16 by sbocanci          #+#    #+#             */
-/*   Updated: 2023/03/17 15:57:07 by sbocanci         ###   ########.fr       */
+/*   Updated: 2023/03/20 12:25:23 by sbocanci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/pipex.h"
 
-void	ft_malloc_pipes(t_pipex *pipex, int ac);
-void	ft_get_envp(t_pipex *pipex, char **envp);
-//void	ft_create_pipes(int pipes[1024][2]);
-void	ft_close_pipes(t_pipex *pipex);
+void	ft_multiple_pipes(int ac, char **av, char **env);
+void	ft_pipe(t_pipex *current, int ac, int i, char *file);
+t_pipex	*ft_init(int pos, char *file);
+void	ft_free_struc(t_pipex *struc);
 
 int	main(int ac, char **av, char **envp)
 {
-	t_pipex	pipex;
-	int		pipes[32][2];
-	int		i;
-	int		p;
+	int	fd[2];
 
-	if (ac < ft_args_in(av[1], &pipex))
+	if (ac < 5 || (!ft_strncmp(av[1], "here_doc", ft_strlen(av[1])) && ac > 6))
 	{
 		write(2, "Error: Invalid arguments\n", 25);
 		write(2, "Use: ./pipex <file1> <cmd1> <cmd2> .. <file2>\n", 46);
 		return (1);
 	}
-	ft_get_files(&pipex, av, av[ac - 1]);
-	//ft_malloc_pipes(&pipex, ac);
-	pipex.cmd_nmbs = ac - 3 - pipex.here_doc;
-	i = -1;
-	while (++i < pipex.cmd_nmbs - 1)
+	if (ac == 6 && (!ft_strncmp(av[1], "here_doc", ft_strlen(av[1]))))
 	{
-		p = pipe(pipes[i]);
-		if (p == -1)
-			ft_free_parent(&pipex);
-		printf("pipes[%d][0]:'%d'\n", i, pipes[i][0]);
-		printf("pipes[%d][1]:'%d'\n", i, pipes[i][1]);
+		ft_here_doc(av);
+		pipe(fd);
+		ft_execve(av, envp, 0, fd);
+		close(fd[1]);
+		ft_execve(av, envp, 1, fd);
+		close(fd[0]);
+		while (wait(0) > 0)
+		{
+		}
 	}
-	ft_get_envp(&pipex, envp);
-	//ft_create_pipes(pipes);
-	i = -1;
-	while (++i < pipex.cmd_nmbs)
-	{
-		//printf("'%d'\n", i);
-		ft_child(pipex, av, envp, pipes, i);
-	}
-	//ft_close_pipes(&pipex);
-	waitpid(-1, NULL, 0);
-	ft_free_parent(&pipex);
+	else
+		ft_multiple_pipes(ac, av, envp);
 	return (0);
 }
 
-/* Calculating cmds and allocating mem for ptrs to each cmd 
-void	ft_malloc_pipes(t_pipex *pipex, int ac)
+void	ft_multiple_pipes(int ac, char **av, char **env)
 {
-	pipex->cmd_nmbs = ac - 3 - pipex->here_doc;
-	//pipex->pipe_nmbs = 2 * (pipex->cmd_nmbs - 1);
-	pipex->pipe = (int **)malloc(sizeof(int *) * (pipex->cmd_nmbs));
-	if (!pipex->pipe)
-		ft_error("Pipe");
-}
-*/
-/* Will return $PATH varable from env into env_path */
-/* Then split into 2d array of available env paths */
-void	ft_get_envp(t_pipex *pipex, char **envp)
-{
-	while (ft_strncmp("PATH", *envp, 4))
-		envp++;
-	pipex->env_path = *envp + 5;
-	pipex->cmd_paths = ft_split(pipex->env_path, ':');
-	if (!pipex->cmd_paths)
-		ft_free_pipe(pipex);
+	t_pipex	*current;
+	t_pipex	*previous;
+	int		i;
+
+	i = 1;
+	current = ft_init(2, av[i]);
+	while (++i < ac - 1)
+	{
+		current->cmd = av[i];
+		if (i != ac - 2)
+			ft_pipe(current, ac - 1, i, av[ac - 1]);
+		ft_exec_cmd(current, av, env, ac);
+		if (current->wr_out != 1)
+			close(current->wr_out);
+		if (current->rd_in != 0)
+			close(current->rd_in);
+		previous = current;
+		current = current->next;
+		ft_free_struc(previous);
+	}
+	while (wait(0) > 0)
+	{
+	}
 }
 
-/* Calling pipe() for each cmd 
-void	ft_create_pipes(int pipes[1024][2])
+void	ft_pipe(t_pipex *current, int ac, int i, char *file)
 {
-	int	i;
+	int	fd[2];
 
-	i = -1;
-	while (++i < pipex->cmd_nmbs - 1)
-		if (pipe(pipes[i]) == -1)
-			ft_free_parent(pipex);
+	if (i + 2 == ac)
+		current->next = ft_init(i + 1, file);
+	else
+		current->next = ft_init(i + 1, "");
+	pipe(fd);
+	current->wr_out = fd[1];
+	current->next->rd_in = fd[0];
 }
-void	ft_close_pipes(t_pipex *pipex)
+
+t_pipex	*ft_init(int pos, char *file)
 {
-	int	i;
+	t_pipex	*tmp;
 
-	i = -1;
-	while (++i < pipex->pipe_nmbs)
-		close(pipex->pipe[i]);
+	tmp = (t_pipex *)malloc(sizeof(t_pipex));
+	tmp->rd_in = 0;
+	tmp->file_name = file;
+	tmp->pos = pos;
+	tmp->wr_out = 1;
+	return (tmp);
 }
-*/
+
+void	ft_free_struc(t_pipex *struc)
+{
+	if (struc)
+	{
+		free(struc);
+		struc = NULL;
+	}
+}

@@ -38,7 +38,7 @@ void	ft_multiple_pipes(int ac,char **av, char **env);
 void	ft_path(char *av, char **path, char **env);
 char	*ft_check_bin(char *cmd, char *command);
 char	**ft_set_arr(char *path, char *av);
-void	ft_exec_child(char **av, char **arr, int fd[2], int order);
+void	ft_few_child_ex(char **av, char **arr, int fd[2], int order);
 int		ft_second_cmd(int fd[2], char *file);
 int		ft_first_cmd(int fd[2]);
 void    ft_free(char **arr);
@@ -47,11 +47,11 @@ t_pipex	*ft_init(int pos, char *file);
 void	ft_pipe(t_pipex *current, int ac, int i, char *file);
 void	ft_exec_cmd(t_pipex *current, char **av, char **env, int ac);
 void	ft_free_struc(t_pipex *current);
-void	ft_child_exec(t_pipex *current, char **av, char **arr, int ac);
+void	ft_multiple_child_ex(t_pipex *current, char **av, char **arr, int ac);
 int		ft_first(t_pipex *current);
 int		ft_last(t_pipex *current);
 int		ft_error(char *path, char *command);
-void	ft_error_norm(int fd, char *path, char *command);
+//void	ft_error_norm(int fd, char *path, char *command);
 /* libft helpers */
 size_t	ft_strlen(const char *s);
 void	ft_putstr_fd(char *s, int fd);
@@ -75,25 +75,22 @@ int	main(int ac, char **av, char **env)
 {
 	int	fd[2];
 	
-	if (ac < 5)
+	if (ac < 5 || (!ft_strncmp(av[1], "here_doc", ft_strlen(av[1])) && ac > 6))
 	{
 		write(2, "Error: Invalid arguments\n", 25);
 		write(2, "Use: ./pipex <file1> <cmd1> <cmd2> .. <file2>\n", 46);
 		return (1);
 	}
-	if (!ft_strncmp(av[1], "here_doc", ft_strlen(av[1])))
+	if (ac == 6 && (!ft_strncmp(av[1], "here_doc", ft_strlen(av[1]))))
 	{
-		if (ac == 6)
-		{
-			ft_here_doc(av);
-			pipe(fd);
-			ft_execve(av, env, 0, fd);
-			close(fd[1]);
-			ft_execve(av, env, 1, fd);
-			close(fd[0]);
-			while (wait(0) > 0)
-			{}
-		}
+		ft_here_doc(av);
+		pipe(fd);
+		ft_execve(av, env, 0, fd);
+		close(fd[1]);
+		ft_execve(av, env, 1, fd);
+		close(fd[0]);
+		while (wait(0) > 0)
+		{}
 	}
 	else
 		ft_multiple_pipes(ac, av, env);
@@ -142,7 +139,7 @@ void	ft_execve(char **av, char **env, int order, int fd[2])
 	}
 	pid = fork();
 	if (pid == 0)
-		ft_exec_child(av, arr, fd, order);
+		ft_few_child_ex(av, arr, fd, order);
 	ft_free(arr);
 	return ;
 }
@@ -251,7 +248,7 @@ char	**ft_set_arr(char *path, char *av)
 }
 
 /* This exec_child used in ft_execve() used in main (when there is here_doc and ac == 6)*/
-void	ft_exec_child(char **av, char **arr, int fd[2], int order)
+void	ft_few_child_ex(char **av, char **arr, int fd[2], int order)
 {
 	int	ret;
 
@@ -361,7 +358,7 @@ void	ft_exec_cmd(t_pipex *current, char **av, char **env, int ac)
 	arr = ft_set_arr(path, current->cmd);
 	pid = fork();
 	if (pid == 0)
-		ft_child_exec(current, av, arr, ac);
+		ft_multiple_child_ex(current, av, arr, ac);
 	ft_free(arr);
 	return ;
 }
@@ -376,7 +373,7 @@ void	ft_free_struc(t_pipex *struc)
 }
 
 /* ..from ft_exec_cmd() used in ft_multiple_pipes() */
-void	ft_child_exec(t_pipex *current, char **av, char **arr, int ac)
+void	ft_multiple_child_ex(t_pipex *current, char **av, char **arr, int ac)
 {
 	int	ret;
 

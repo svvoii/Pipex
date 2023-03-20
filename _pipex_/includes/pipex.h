@@ -6,7 +6,7 @@
 /*   By: sbocanci <sbocanci@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/03/07 16:28:21 by sbocanci          #+#    #+#             */
-/*   Updated: 2023/03/17 15:34:27 by sbocanci         ###   ########.fr       */
+/*   Updated: 2023/03/20 12:23:14 by sbocanci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,42 +23,36 @@
 
 typedef struct s_pipex
 {
-	char	**cmd_paths;
-	char	**cmd_args;
-	char	*cmd;
-	char	*env_path;
-	pid_t	pid;
-	//int		pipe[1024][2];
-	int		infile;
-	int		outfile;
-	int		here_doc;
-	int		cmd_nmbs;
-	int		pipe_nmbs;
-	//int		i;
+	char			*file_name;
+	char			*cmd;
+	int				rd_in;
+	int				wr_out;
+	int				pos;
+	struct s_pipex	*next;
 }	t_pipex;
 
 /* ft_pipex.c (main) */
-void	ft_malloc_pipes(t_pipex *pipex, int ac);
-void	ft_get_envp(t_pipex *pipex, char **envp);
-//void	ft_create_pipes(int pipex[1024][2]);
-//void	ft_create_pipes(int *pipes[2]);
-//void	ft_create_pipes(t_pipex *pipex);
-void	ft_close_pipes(t_pipex *pipex);
-/* ft_execute.c */
-void	ft_get_files(t_pipex *pipex, char **av, char *out);
-void	ft_here_doc(char *av, t_pipex *pipex);
-//void	ft_child(t_pipex p, char **av, char **envp);
-void	ft_child(t_pipex p, char **av, char **envp, int pipes[32][2], int i);
-void	ft_sub_dup2(t_pipex p, int pipes[32][2], int i);
-//void	ft_child(t_pipex p, char **av, char **envp, int i);
-//void	ft_sub_dup2(t_pipex p);
-//void	ft_sub_dup2(int zero, int first);
-char	*ft_get_cmd(char **paths, char *cmd);
-/* ft_free.c*/
-int		ft_args_in(char *arg, t_pipex *pipex);
-void	ft_free_child(t_pipex *pipex);
-void	ft_free_parent(t_pipex *pipex);
-void	ft_free_pipe(t_pipex *pipex);
-void	ft_error(char *err);
+void	ft_multiple_pipes(int ac, char **av, char **env);
+void	ft_pipe(t_pipex *current, int ac, int i, char *file);
+t_pipex	*ft_init(int pos, char *file);
+void	ft_free_struc(t_pipex *struc);
+/* ft_2cmd_exec.c */
+void	ft_execve(char **av, char **env, int order, int fd[2]);
+void	ft_path(char *av, char **path, char **env);
+char	*ft_check_bin(char *cmd, char *command);
+char	**ft_set_arr(char *path, char *av);
+void	ft_free(char **arr);
+/* ft_2cmd_helpers.c*/
+void	ft_here_doc(char **av);
+void	ft_few_child_ex(char **av, char **arr, int fd[2], int order);
+int		ft_second_cmd(int fd[2], char *file);
+int		ft_first_cmd(int fd[2]);
+void	ft_error_norm(int fd, char *path, char *command);
+/* ft_multiple_exec.c*/
+void	ft_multiple_child_ex(t_pipex *current, char **av, char **arr, int ac);
+int		ft_first(t_pipex *current);
+int		ft_last(t_pipex *current);
+void	ft_exec_cmd(t_pipex *current, char **av, char **env, int ac);
+int		ft_error(char *path, char *command);
 
 #endif
